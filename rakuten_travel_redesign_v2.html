@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel — 楽天トラベル 20代向けUIUX改善提案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #FF4D4D;
+  --accent2: #FF8C42;
+  --dark: #0D0D0D;
+  --dark2: #1A1A1A;
+  --dark3: #262626;
+  --card: #1E1E1E;
+  --border: rgba(255,255,255,0.08);
+  --text: #F5F5F5;
+  --muted: rgba(255,255,255,0.45);
+  --pill-bg: rgba(255,255,255,0.07);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font: 'Outfit', 'Noto Sans JP', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ─── TOPBAR ─── */
+#topbar{position:sticky;top:0;z-index:100;background:rgba(13,13,13,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:18px;font-weight:700;letter-spacing:-0.5px}
+.logo span{color:var(--accent)}
+.step-dots{display:flex;gap:6px;align-items:center}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);border:1px solid rgba(255,255,255,0.15);transition:all 0.3s}
+.step-dot.done{background:var(--accent2);border-color:var(--accent2)}
+.step-dot.active{background:var(--accent);border-color:var(--accent);width:22px;border-radius:4px}
+.step-label{font-size:11px;color:var(--muted);margin-left:8px}
+
+/* ─── SECTIONS ─── */
+.section{display:none;min-height:calc(100vh - 56px);padding:24px 20px 100px;max-width:480px;margin:0 auto}
+.section.active{display:block;animation:fadeUp 0.35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── HERO SEARCH (Section 1) ─── */
+.hero-heading{font-size:28px;font-weight:700;line-height:1.25;margin-bottom:6px;letter-spacing:-0.5px}
+.hero-heading em{color:var(--accent);font-style:normal}
+.hero-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+
+.search-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.input-group{margin-bottom:14px}
+.input-group:last-child{margin-bottom:0}
+.input-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.input-label svg{opacity:0.5}
+input[type=text],input[type=date],select{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:15px;color:var(--text);font-family:var(--font);outline:none;transition:border-color 0.2s,background 0.2s;-webkit-appearance:none;appearance:none}
+input:focus,select:focus{border-color:var(--accent);background:rgba(255,77,77,0.06)}
+select option{background:var(--dark2);color:var(--text)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+.mood-label{font-size:13px;font-weight:500;margin-bottom:10px;color:var(--muted)}
+.mood-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.mood-btn{background:var(--pill-bg);border:1px solid var(--border);border-radius:12px;padding:10px 4px;text-align:center;cursor:pointer;transition:all 0.2s;font-size:10px;color:var(--muted)}
+.mood-btn .mood-icon{font-size:22px;display:block;margin-bottom:3px}
+.mood-btn.sel{background:rgba(255,77,77,0.15);border-color:var(--accent);color:var(--text)}
+
+.search-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius-sm);padding:15px;font-size:16px;font-weight:600;color:#fff;cursor:pointer;font-family:var(--font);letter-spacing:0.02em;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.search-btn:hover{opacity:0.9}
+.search-btn:active{transform:scale(0.98)}
+
+/* ─── RESULT CHIPS ─── */
+.result-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.result-count{font-size:13px;color:var(--muted)}
+.result-count strong{color:var(--text)}
+.sort-select{background:var(--pill-bg);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;color:var(--text);font-family:var(--font);cursor:pointer;outline:none}
+
+.filter-row{display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:4px;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-chip{flex-shrink:0;background:var(--pill-bg);border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.2s}
+.filter-chip.on{background:rgba(255,77,77,0.15);border-color:var(--accent);color:var(--text)}
+
+/* ─── HOTEL CARDS ─── */
+.hotel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;cursor:pointer;transition:border-color 0.2s,transform 0.15s}
+.hotel-card:hover{border-color:rgba(255,77,77,0.3);transform:translateY(-2px)}
+.hotel-card.picked{border-color:var(--accent);background:rgba(255,77,77,0.06)}
+.hotel-img{height:140px;width:100%;object-fit:cover;display:flex;align-items:flex-end;padding:10px;position:relative}
+.himg-inner{width:100%;height:100%;position:absolute;inset:0;border-radius:0}
+.hotel-img-tag{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.55);border-radius:8px;padding:3px 8px;font-size:11px;color:#fff;display:flex;align-items:center;gap:4px}
+.hotel-img-fav{position:absolute;top:10px;left:10px;width:30px;height:30px;background:rgba(0,0,0,0.45);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:background 0.2s}
+.hotel-img-fav.active{background:rgba(255,77,77,0.7)}
+.hotel-body{padding:14px}
+.hotel-name{font-size:15px;font-weight:600;margin-bottom:3px}
+.hotel-loc{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.hotel-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.htag{background:rgba(255,140,66,0.12);border:1px solid rgba(255,140,66,0.25);border-radius:6px;padding:3px 8px;font-size:11px;color:#ffb280}
+.hotel-bottom{display:flex;align-items:center;justify-content:space-between}
+.hotel-rating{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}
+.hotel-rating strong{color:#FFD166;font-size:14px}
+.hotel-price{text-align:right}
+.hotel-price strong{font-size:18px;font-weight:700;color:var(--accent)}
+.hotel-price span{font-size:11px;color:var(--muted)}
+.pick-btn{margin-top:10px;width:100%;background:var(--accent);border:none;border-radius:var(--radius-sm);padding:10px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:var(--font);transition:opacity 0.2s}
+.pick-btn:hover{opacity:0.85}
+.pick-btn.picked-state{background:rgba(255,255,255,0.08);color:var(--muted);border:1px solid var(--border)}
+
+/* ─── DETAIL / PLAN (Section 3) ─── */
+.detail-hero-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.detail-hero-img{height:160px;display:flex;align-items:flex-end;padding:14px;position:relative}
+.detail-back-btn{position:absolute;top:12px;left:12px;width:34px;height:34px;background:rgba(0,0,0,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#fff}
+.detail-info{padding:16px}
+.detail-name{font-size:20px;font-weight:700;margin-bottom:4px}
+.detail-loc{font-size:13px;color:var(--muted);margin-bottom:10px}
+.detail-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat-box{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.stat-box .sv{font-size:16px;font-weight:700;color:var(--text)}
+.stat-box .sk{font-size:10px;color:var(--muted);margin-top:2px}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.feat{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);background:var(--pill-bg);border-radius:8px;padding:8px 10px}
+.feat-icon{font-size:16px}
+
+.plan-title{font-size:14px;font-weight:600;margin-bottom:10px}
+.plan-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+.plan-card:hover{border-color:rgba(255,77,77,0.3)}
+.plan-card.sel{border-color:var(--accent);background:rgba(255,77,77,0.07)}
+.plan-row{display:flex;justify-content:space-between;align-items:flex-start}
+.plan-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.plan-desc{font-size:11px;color:var(--muted)}
+.plan-price{font-size:16px;font-weight:700;color:var(--accent);text-align:right}
+.plan-price-sub{font-size:10px;color:var(--muted)}
+.radio-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.plan-card.sel .radio-dot{border-color:var(--accent);background:var(--accent)}
+.plan-card.sel .radio-dot::after{content:'';width:7px;height:7px;background:#fff;border-radius:50%}
+
+/* ─── BOOKING (Section 4) ─── */
+.booking-summary{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.bs-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.bs-row:last-child{border-bottom:none}
+.bs-key{font-size:12px;color:var(--muted)}
+.bs-val{font-size:13px;font-weight:500;text-align:right}
+.bs-val.accent{color:var(--accent);font-size:16px;font-weight:700}
+
+.points-box{background:rgba(255,209,102,0.07);border:1px solid rgba(255,209,102,0.2);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.points-icon{font-size:22px}
+.points-text .pt{font-size:13px;font-weight:600;color:#FFD166}
+.points-text .ps{font-size:11px;color:var(--muted)}
+
+.form-section{margin-bottom:14px}
+.form-title{font-size:13px;font-weight:600;margin-bottom:10px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.form-title::before{content:'';width:3px;height:13px;background:var(--accent);border-radius:2px;display:inline-block}
+.name-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+.confirm-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius-sm);padding:16px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--font);letter-spacing:0.03em;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.confirm-btn:hover{opacity:0.9}
+.confirm-btn:active{transform:scale(0.98)}
+.security-note{text-align:center;font-size:11px;color:var(--muted);margin-top:10px;display:flex;align-items:center;justify-content:center;gap:4px}
+
+/* ─── COMPLETE (Section 5) ─── */
+.complete-wrap{text-align:center;padding:40px 0}
+.complete-icon{font-size:64px;margin-bottom:16px;display:block}
+.complete-title{font-size:24px;font-weight:700;margin-bottom:8px}
+.complete-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6}
+.complete-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:left;margin-bottom:20px}
+.cc-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cc-row:last-child{border-bottom:none}
+.cc-key{color:var(--muted)}
+.cc-val{font-weight:500}
+.points-earned{background:rgba(255,209,102,0.1);border:1px solid rgba(255,209,102,0.25);border-radius:var(--radius-sm);padding:12px 14px;text-align:center;margin-bottom:20px}
+.pe-num{font-size:28px;font-weight:700;color:#FFD166}
+.pe-label{font-size:12px;color:var(--muted)}
+.restart-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all 0.2s}
+.restart-btn:hover{border-color:rgba(255,255,255,0.3);color:var(--text)}
+
+/* ─── BOTTOM NAV ─── */
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,13,0.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;height:60px;z-index:100;max-width:480px;left:50%;transform:translateX(-50%)}
+.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--muted);font-family:var(--font);padding:0 14px;transition:color 0.2s}
+.bnav-btn.active{color:var(--accent)}
+.bnav-icon{font-size:20px}
+.bnav-label{font-size:9px;font-weight:500}
+.bnav-btn.disabled{opacity:0.3;cursor:default}
+
+/* ─── SECTION HEADER ─── */
+.sec-header{margin-bottom:20px}
+.sec-title{font-size:20px;font-weight:700;letter-spacing:-0.3px;margin-bottom:3px}
+.sec-sub{font-size:12px;color:var(--muted)}
+
+/* ─── NEXT BTN AREA ─── */
+.next-area{position:sticky;bottom:68px;left:0;right:0;padding:10px 0 0;background:linear-gradient(to bottom,transparent,rgba(13,13,13,0.97) 30%)}
+.next-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius-sm);padding:14px;font-size:15px;font-weight:600;color:#fff;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.2s}
+.next-btn:hover{opacity:0.9}
+.next-btn:active{transform:scale(0.98)}
+
+/* ─── TAGS ─── */
+.section-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,77,77,0.12);border:1px solid rgba(255,77,77,0.25);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--accent);margin-bottom:10px}
+
+/* ─── Color-coded hotel imgs ─── */
+.c1{background:linear-gradient(135deg,#1a1a3e 0%,#4a2080 100%)}
+.c2{background:linear-gradient(135deg,#0f3728 0%,#1a7a50 100%)}
+.c3{background:linear-gradient(135deg,#3a1a0a 0%,#a04010 100%)}
+.c4{background:linear-gradient(135deg,#0a1a3a 0%,#1050a0 100%)}
+.c5{background:linear-gradient(135deg,#2a0a2a 0%,#800060 100%)}
+.c6{background:linear-gradient(135deg,#1a2a0a 0%,#4a8010 100%)}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px}
+
+/* ─── COMPARISON BADGE ─── */
+.vs-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--muted);margin-bottom:14px}
+.vs-badge .before{color:#888}
+.vs-badge .arrow{color:var(--accent)}
+.vs-badge .after{color:#4ade80}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="logo">✈ Travel<span>.</span></div>
+  <div style="display:flex;align-items:center">
+    <div class="step-dots" id="step-dots">
+      <div class="step-dot active" data-step="1"></div>
+      <div class="step-dot" data-step="2"></div>
+      <div class="step-dot" data-step="3"></div>
+      <div class="step-dot" data-step="4"></div>
+    </div>
+    <span class="step-label" id="step-label">検索</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SECTION 1: SEARCH ════════════════════════════════ -->
+<div class="section active" id="sec-1">
+  <div class="sec-header">
+    
+    <div class="hero-heading">次の旅、<em>気分</em>から<br>見つけよう</div>
+    <div class="hero-sub">楽天トラベル × Airbnb参考 — 改善提案モックアップ</div>
+  </div>
+
+  
+
+  <div class="search-card">
+    <div class="input-group">
+      <div class="input-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        目的地
+      </div>
+      <input type="text" id="dest" placeholder="どこへ行く？（例：沖縄、京都）" autocomplete="off">
+    </div>
+    <div class="row2">
+      <div class="input-group">
+        <div class="input-label">チェックイン</div>
+        <input type="date" id="checkin">
+      </div>
+      <div class="input-group">
+        <div class="input-label">チェックアウト</div>
+        <input type="date" id="checkout">
+      </div>
+    </div>
+    <div class="row3">
+      <div class="input-group">
+        <div class="input-label">大人</div>
+        <select id="adults">
+          <option>1名</option><option selected>2名</option><option>3名</option><option>4名</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <div class="input-label">予算/泊</div>
+        <select id="budget">
+          <option>〜¥8,000</option><option selected>〜¥15,000</option><option>〜¥25,000</option><option>上限なし</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <div class="input-label">泊数</div>
+        <select id="nights">
+          <option>1泊</option><option selected>2泊</option><option>3泊</option><option>4泊以上</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="mood-label">🎭 旅のバイブを選ぶ</div>
+  <div class="mood-grid">
+    <div class="mood-btn" data-mood="solo" onclick="selectMood(this)"><span class="mood-icon">🧘</span>ひとり旅</div>
+    <div class="mood-btn sel" data-mood="couple" onclick="selectMood(this)"><span class="mood-icon">💑</span>カップル</div>
+    <div class="mood-btn" data-mood="friends" onclick="selectMood(this)"><span class="mood-icon">🎉</span>友達と</div>
+    <div class="mood-btn" data-mood="photo" onclick="selectMood(this)"><span class="mood-icon">📸</span>映え旅</div>
+    <div class="mood-btn" data-mood="nature" onclick="selectMood(this)"><span class="mood-icon">🏔</span>自然</div>
+    <div class="mood-btn" data-mood="food" onclick="selectMood(this)"><span class="mood-icon">🍜</span>グルメ</div>
+    <div class="mood-btn" data-mood="relax" onclick="selectMood(this)"><span class="mood-icon">♨</span>温泉癒し</div>
+    <div class="mood-btn" data-mood="city" onclick="selectMood(this)"><span class="mood-icon">🌆</span>都市散策</div>
+  </div>
+
+  <button class="search-btn" onclick="goSearch()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    宿を探す
+  </button>
+</div>
+
+<!-- ════════════════════════════════ SECTION 2: RESULTS ════════════════════════════════ -->
+<div class="section" id="sec-2">
+  <div class="sec-header">
+    <div class="sec-title">検索結果</div>
+    <div class="sec-sub" id="result-sub">読み込み中...</div>
+  </div>
+
+  <div class="filter-row" id="filter-row">
+    <div class="filter-chip on" onclick="toggleFilter(this)">すべて</div>
+    <div class="filter-chip" onclick="toggleFilter(this)">朝食付き</div>
+    <div class="filter-chip" onclick="toggleFilter(this)">海沿い</div>
+    <div class="filter-chip" onclick="toggleFilter(this)">映えスポ</div>
+    <div class="filter-chip" onclick="toggleFilter(this)">温泉</div>
+    <div class="filter-chip" onclick="toggleFilter(this)">ペット可</div>
+  </div>
+
+  <div class="result-bar">
+    <div class="result-count"><strong id="result-dest">沖縄</strong>の宿 <strong>38件</strong></div>
+    <select class="sort-select" style="font-size:11px">
+      <option>おすすめ順</option>
+      <option>価格が安い順</option>
+      <option>評価が高い順</option>
+    </select>
+  </div>
+
+  <div id="hotel-list"></div>
+
+  <div class="next-area">
+    <button class="next-btn" id="to-detail-btn" onclick="goDetail()" style="display:none">
+      この宿でプランを見る →
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SECTION 3: DETAIL + PLAN ════════════════════════════════ -->
+<div class="section" id="sec-3">
+  <div class="detail-hero-wrap" id="detail-hero-wrap">
+    <div class="detail-hero-img c1" id="detail-hero-img">
+      <div class="detail-back-btn" onclick="goSection(2)">←</div>
+    </div>
+    <div class="detail-info">
+      <div class="detail-name" id="d-name">−</div>
+      <div class="detail-loc" id="d-loc">−</div>
+      <div class="detail-stats">
+        <div class="stat-box"><div class="sv" id="d-rating">4.6</div><div class="sk">評価</div></div>
+        <div class="stat-box"><div class="sv" id="d-reviews">284</div><div class="sk">レビュー</div></div>
+        <div class="stat-box"><div class="sv" id="d-price-disp">¥13,200</div><div class="sk">/人・泊〜</div></div>
+      </div>
+      <div class="feature-grid">
+        <div class="feat"><span class="feat-icon">📶</span>無料Wi-Fi</div>
+        <div class="feat"><span class="feat-icon">🚗</span>無料駐車場</div>
+        <div class="feat"><span class="feat-icon">🏊</span>プール</div>
+        <div class="feat"><span class="feat-icon">🛁</span>大浴場</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="plan-title">プランを選ぶ</div>
+  <div id="plan-list"></div>
+
+  <div class="next-area">
+    <button class="next-btn" onclick="goBooking()">予約へ進む →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SECTION 4: BOOKING ════════════════════════════════ -->
+<div class="section" id="sec-4">
+  <div class="sec-header">
+    <div class="sec-title">予約内容の確認</div>
+    <div class="sec-sub">入力内容は保持されます</div>
+  </div>
+
+  <div class="booking-summary" id="booking-summary">
+    <div class="bs-row"><span class="bs-key">宿泊先</span><span class="bs-val" id="bs-hotel">−</span></div>
+    <div class="bs-row"><span class="bs-key">日程</span><span class="bs-val" id="bs-dates">−</span></div>
+    <div class="bs-row"><span class="bs-key">人数・泊数</span><span class="bs-val" id="bs-guests">−</span></div>
+    <div class="bs-row"><span class="bs-key">プラン</span><span class="bs-val" id="bs-plan">−</span></div>
+    <div class="bs-row"><span class="bs-key">合計金額</span><span class="bs-val accent" id="bs-total">−</span></div>
+  </div>
+
+  <div class="points-box">
+    <div class="points-icon">🎁</div>
+    <div class="points-text">
+      <div class="pt" id="points-earn">+0 ポイント獲得予定</div>
+      <div class="ps">楽天ポイント (改善提案: 予約確認画面でも常時表示)</div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-title">代表者情報</div>
+    <div class="name-row" style="margin-bottom:10px">
+      <div class="input-group" style="margin-bottom:0">
+        <div class="input-label">姓</div>
+        <input type="text" id="f-sei" placeholder="山田">
+      </div>
+      <div class="input-group" style="margin-bottom:0">
+        <div class="input-label">名</div>
+        <input type="text" id="f-mei" placeholder="太郎">
+      </div>
+    </div>
+    <div class="input-group" style="margin-bottom:10px">
+      <div class="input-label">メールアドレス</div>
+      <input type="text" id="f-email" placeholder="example@email.com">
+    </div>
+    <div class="input-group">
+      <div class="input-label">電話番号</div>
+      <input type="text" id="f-tel" placeholder="090-0000-0000">
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-title">特別リクエスト（任意）</div>
+    <input type="text" id="f-req" placeholder="例：ハネムーンです。景色の良い部屋を希望します">
+  </div>
+
+  <button class="confirm-btn" onclick="doConfirm()">
+    🔒 予約を確定する
+  </button>
+  <div class="security-note">🔐 SSL暗号化通信で保護されています</div>
+</div>
+
+<!-- ════════════════════════════════ SECTION 5: COMPLETE ════════════════════════════════ -->
+<div class="section" id="sec-5">
+  <div class="complete-wrap">
+    <span class="complete-icon">🎉</span>
+    <div class="complete-title">予約が完了しました！</div>
+    <div class="complete-sub">確認メールをお送りします。<br>楽しい旅になりますように✈</div>
+  </div>
+  <div class="complete-card" id="complete-card"></div>
+  <div class="points-earned">
+    <div class="pe-num" id="pe-num">+1,320 pt</div>
+    <div class="pe-label">楽天ポイント獲得</div>
+  </div>
+  <button class="restart-btn" onclick="restart()">↩ 最初から検索する</button>
+</div>
+
+<!-- BOTTOM NAV -->
+<div id="bottom-nav">
+  <button class="bnav-btn active" data-nav="1" onclick="navTo(1)">
+    <span class="bnav-icon">🔍</span>
+    <span class="bnav-label">検索</span>
+  </button>
+  <button class="bnav-btn disabled" data-nav="2" onclick="navTo(2)">
+    <span class="bnav-icon">🏨</span>
+    <span class="bnav-label">結果</span>
+  </button>
+  <button class="bnav-btn disabled" data-nav="3" onclick="navTo(3)">
+    <span class="bnav-icon">📋</span>
+    <span class="bnav-label">プラン</span>
+  </button>
+  <button class="bnav-btn disabled" data-nav="4" onclick="navTo(4)">
+    <span class="bnav-icon">✅</span>
+    <span class="bnav-label">予約</span>
+  </button>
+</div>
+
+<script>
+var state = {
+  currentSection: 1,
+  maxReached: 1,
+  dest: '',
+  checkin: '',
+  checkout: '',
+  adults: '2名',
+  budget: '〜¥15,000',
+  nights: '2泊',
+  mood: 'couple',
+  selectedHotel: null,
+  selectedPlan: null,
+  favorites: []
+};
+
+var hotels = [
+  {id:1,name:'THE OCEAN リゾート沖縄',loc:'恩納村 · 海まで徒歩2分',rating:4.6,reviews:284,price:13200,color:'c1',tags:['朝食付き','プール','オーシャンビュー'],mood:['couple','photo','relax']},
+  {id:2,name:'ナチュラ青の洞窟ヴィラ',loc:'真栄田岬 · シュノーケル至近',rating:4.2,reviews:117,price:8900,color:'c2',tags:['ダイビング体験','自然派'],mood:['solo','nature','friends']},
+  {id:3,name:'ESPANA那覇リゾート',loc:'国際通り · 徒歩3分',rating:4.9,reviews:53,price:11500,color:'c3',tags:['映えルーフトップ','深夜チェックイン'],mood:['friends','photo','city']},
+  {id:4,name:'琉球の宿 海風',loc:'北谷 · 美浜アメリカンビレッジ近く',rating:4.4,reviews:198,price:9800,color:'c4',tags:['和室','夕食付き','温泉'],mood:['couple','relax','food']},
+  {id:5,name:'URBAN BASE那覇',loc:'牧志 · モノレール徒歩1分',rating:4.1,reviews:312,price:6800,color:'c5',tags:['コスパ◎','長期割引'],mood:['solo','city']},
+  {id:6,name:'マリンブルーヴィラ石垣',loc:'石垣島 · プライベートビーチ付き',rating:4.8,reviews:89,price:22000,color:'c6',tags:['高級','プライベートビーチ','朝食付き'],mood:['couple','photo','relax']}
+];
+
+var plans = [
+  {id:1,name:'【朝食付き】オーシャンビュールーム',desc:'最上階 · 朝食ビュッフェ込み',price:26400,points:1320},
+  {id:2,name:'素泊まりスタンダード',desc:'シンプルステイ · 食事なし',price:19800,points:990},
+  {id:3,name:'【記念日プラン】スパ付き',desc:'スパ1回無料 · ウェルカムフルーツ',price:32000,points:1600}
+];
+
+function selectMood(el) {
+  document.querySelectorAll('.mood-btn').forEach(function(b){b.classList.remove('sel')});
+  el.classList.add('sel');
+  state.mood = el.dataset.mood;
+}
+
+function goSearch() {
+  state.dest = document.getElementById('dest').value || '沖縄';
+  state.checkin = document.getElementById('checkin').value;
+  state.checkout = document.getElementById('checkout').value;
+  state.adults = document.getElementById('adults').value;
+  state.budget = document.getElementById('budget').value;
+  state.nights = document.getElementById('nights').value;
+  buildHotelList();
+  goSection(2);
+}
+
+function buildHotelList() {
+  document.getElementById('result-dest').textContent = state.dest;
+  document.getElementById('result-sub').textContent = state.dest + ' · ' + (state.checkin||'日程未定') + ' · ' + state.adults;
+  var html = '';
+  hotels.forEach(function(h) {
+    var favClass = state.favorites.indexOf(h.id) >= 0 ? 'active' : '';
+    var pickedClass = state.selectedHotel && state.selectedHotel.id === h.id ? 'picked' : '';
+    var btnClass = state.selectedHotel && state.selectedHotel.id === h.id ? 'pick-btn picked-state' : 'pick-btn';
+    var btnText = state.selectedHotel && state.selectedHotel.id === h.id ? '✓ 選択中' : 'この宿を選ぶ';
+    html += '<div class="hotel-card '+pickedClass+'" id="hcard-'+h.id+'">';
+    html += '<div class="hotel-img '+h.color+'" style="position:relative">';
+    html += '<div class="hotel-img-fav '+favClass+'" onclick="toggleFav(event,'+h.id+')">♡</div>';
+    html += '<div class="hotel-img-tag">⭐ '+h.rating+'</div>';
+    html += '</div>';
+    html += '<div class="hotel-body">';
+    html += '<div class="hotel-name">'+h.name+'</div>';
+    html += '<div class="hotel-loc">📍 '+h.loc+'</div>';
+    html += '<div class="hotel-tags">';
+    h.tags.forEach(function(t){html += '<div class="htag">'+t+'</div>'});
+    html += '</div>';
+    html += '<div class="hotel-bottom">';
+    html += '<div class="hotel-rating"><strong>'+h.rating+'</strong> ('+h.reviews+'件のレビュー)</div>';
+    html += '<div class="hotel-price"><strong>¥'+h.price.toLocaleString()+'</strong><span>/人・泊〜</span></div>';
+    html += '</div>';
+    html += '<button class="'+btnClass+'" onclick="pickHotel('+h.id+')">'+btnText+'</button>';
+    html += '</div></div>';
+  });
+  document.getElementById('hotel-list').innerHTML = html;
+  var btn = document.getElementById('to-detail-btn');
+  btn.style.display = state.selectedHotel ? 'flex' : 'none';
+}
+
+function toggleFav(e, id) {
+  e.stopPropagation();
+  var idx = state.favorites.indexOf(id);
+  if(idx >= 0) { state.favorites.splice(idx,1); } else { state.favorites.push(id); }
+  buildHotelList();
+}
+
+function toggleFilter(el) {
+  document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('on')});
+  el.classList.add('on');
+}
+
+function pickHotel(id) {
+  state.selectedHotel = hotels.find(function(h){return h.id===id});
+  buildHotelList();
+  document.getElementById('to-detail-btn').style.display = 'flex';
+  document.getElementById('hcard-'+id).scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function goDetail() {
+  if(!state.selectedHotel) return;
+  var h = state.selectedHotel;
+  document.getElementById('d-name').textContent = h.name;
+  document.getElementById('d-loc').textContent = h.loc;
+  document.getElementById('d-rating').textContent = h.rating;
+  document.getElementById('d-reviews').textContent = h.reviews;
+  document.getElementById('d-price-disp').textContent = '¥'+h.price.toLocaleString();
+  document.getElementById('detail-hero-img').className = 'detail-hero-img '+h.color;
+  buildPlanList(h.price);
+  goSection(3);
+}
+
+function buildPlanList(basePrice) {
+  var html = '';
+  plans.forEach(function(p) {
+    var sel = state.selectedPlan && state.selectedPlan.id === p.id ? 'sel' : '';
+    html += '<div class="plan-card '+sel+'" onclick="pickPlan('+p.id+')">';
+    html += '<div class="plan-row">';
+    html += '<div><div class="plan-name">'+p.name+'</div><div class="plan-desc">'+p.desc+'</div></div>';
+    html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">';
+    html += '<div class="plan-price">¥'+p.price.toLocaleString()+'<div class="plan-price-sub">2名合計</div></div>';
+    html += '<div class="radio-dot"></div>';
+    html += '</div></div></div>';
+  });
+  document.getElementById('plan-list').innerHTML = html;
+}
+
+function pickPlan(id) {
+  state.selectedPlan = plans.find(function(p){return p.id===id});
+  buildPlanList(state.selectedHotel ? state.selectedHotel.price : 0);
+}
+
+function goBooking() {
+  if(!state.selectedPlan) { pickPlan(1); }
+  var h = state.selectedHotel;
+  var p = state.selectedPlan || plans[0];
+  document.getElementById('bs-hotel').textContent = h ? h.name : '−';
+  var dateStr = (state.checkin && state.checkout) ? state.checkin+' 〜 '+state.checkout : '日程未設定';
+  document.getElementById('bs-dates').textContent = dateStr;
+  document.getElementById('bs-guests').textContent = state.adults + ' · ' + state.nights;
+  document.getElementById('bs-plan').textContent = p.name;
+  document.getElementById('bs-total').textContent = '¥'+p.price.toLocaleString();
+  document.getElementById('points-earn').textContent = '+'+p.points.toLocaleString()+' ポイント獲得予定';
+  goSection(4);
+}
+
+function doConfirm() {
+  var h = state.selectedHotel;
+  var p = state.selectedPlan || plans[0];
+  var html = '';
+  var items = [
+    ['宿泊先', h ? h.name : '−'],
+    ['日程', (state.checkin && state.checkout) ? state.checkin+' 〜 '+state.checkout : '未設定'],
+    ['人数・泊数', state.adults+' · '+state.nights],
+    ['プラン', p.name],
+    ['合計金額', '¥'+p.price.toLocaleString()]
+  ];
+  items.forEach(function(row){
+    html += '<div class="cc-row"><span class="cc-key">'+row[0]+'</span><span class="cc-val">'+row[1]+'</span></div>';
+  });
+  document.getElementById('complete-card').innerHTML = html;
+  document.getElementById('pe-num').textContent = '+'+p.points.toLocaleString()+' pt';
+  goSection(5);
+}
+
+function restart() {
+  state.selectedHotel = null;
+  state.selectedPlan = null;
+  goSection(1);
+}
+
+function goSection(n) {
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('sec-'+n).classList.add('active');
+  state.currentSection = n;
+  if(n > state.maxReached) state.maxReached = n;
+  updateNav();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function navTo(n) {
+  if(n > state.maxReached) return;
+  if(n === 2 && !state.selectedHotel && state.maxReached < 2) return;
+  goSection(n);
+}
+
+function updateNav() {
+  var n = state.currentSection;
+  var labels = ['','検索','結果','プラン','予約'];
+  document.getElementById('step-label').textContent = labels[n] || '';
+  document.querySelectorAll('.step-dot').forEach(function(d){
+    var s = parseInt(d.dataset.step);
+    d.classList.remove('active','done');
+    if(s === n) d.classList.add('active');
+    else if(s < n) d.classList.add('done');
+  });
+  document.querySelectorAll('.bnav-btn').forEach(function(btn){
+    var s = parseInt(btn.dataset.nav);
+    btn.classList.remove('active','disabled');
+    if(s === n) btn.classList.add('active');
+    else if(s > state.maxReached) btn.classList.add('disabled');
+  });
+  if(n >= 5) {
+    document.getElementById('bottom-nav').style.display = 'none';
+  } else {
+    document.getElementById('bottom-nav').style.display = 'flex';
+  }
+}
+
+(function init(){
+  var today = new Date();
+  var d1 = new Date(today); d1.setDate(d1.getDate()+7);
+  var d2 = new Date(today); d2.setDate(d2.getDate()+9);
+  function fmt(d){return d.getFullYear()+'-'+(('0'+(d.getMonth()+1)).slice(-2))+'-'+(('0'+d.getDate()).slice(-2))}
+  document.getElementById('checkin').value = fmt(d1);
+  document.getElementById('checkout').value = fmt(d2);
+})();
+</script>
+</body>
+</html>
